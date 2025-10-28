@@ -9,6 +9,12 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     private FunctionNode lastAccessedNode;
     private int lastAccessedIndex;
     
+    private static final double EPSILON = 1e-10;
+    
+    private boolean doubleEquals(double a, double b) {
+        return Math.abs(a - b) < EPSILON;
+    }
+    
     protected static class FunctionNode {
         private FunctionPoint point;
         private FunctionNode prev;
@@ -295,19 +301,20 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         FunctionNode nextNode = node.getNext();
         
         if (prevNode == head) {
-            if (newX >= nextNode.getPoint().getX()) {
+            if (newX >= nextNode.getPoint().getX() && !doubleEquals(newX, nextNode.getPoint().getX())) {
                 throw new InappropriateFunctionPointException(
                     "Новая координата x=" + newX + " должна быть меньше " + nextNode.getPoint().getX()
                 );
             }
         } else if (nextNode == head) {
-            if (newX <= prevNode.getPoint().getX()) {
+            if (newX <= prevNode.getPoint().getX() && !doubleEquals(newX, prevNode.getPoint().getX())) {
                 throw new InappropriateFunctionPointException(
                     "Новая координата x=" + newX + " должна быть больше " + prevNode.getPoint().getX()
                 );
             }
         } else {
-            if (newX <= prevNode.getPoint().getX() || newX >= nextNode.getPoint().getX()) {
+            if ((newX <= prevNode.getPoint().getX() && !doubleEquals(newX, prevNode.getPoint().getX())) || 
+                (newX >= nextNode.getPoint().getX() && !doubleEquals(newX, nextNode.getPoint().getX()))) {
                 throw new InappropriateFunctionPointException(
                     "Новая координата x=" + newX + " должна быть в интервале (" + 
                     prevNode.getPoint().getX() + ", " + nextNode.getPoint().getX() + ")"
@@ -344,7 +351,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     public void addPoint(FunctionPoint point) throws InappropriateFunctionPointException {
         FunctionNode currentNode = head.getNext();
         for (int i = 0; i < pointsCount; i++) {
-            if (point.getX() == currentNode.getPoint().getX()) {
+            if (doubleEquals(point.getX(), currentNode.getPoint().getX())) {
                 throw new InappropriateFunctionPointException(
                     "Точка с x=" + point.getX() + " уже существует"
                 );

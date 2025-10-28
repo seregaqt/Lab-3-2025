@@ -2,7 +2,12 @@ package functions;
 
 public class ArrayTabulatedFunction implements TabulatedFunction {
     private FunctionPoint[] points; 
-    private int pointsCount; 
+    private int pointsCount;
+    private static final double EPSILON = 1e-10;
+    
+    private boolean doubleEquals(double a, double b) {
+        return Math.abs(a - b) < EPSILON;
+    }
 
     public ArrayTabulatedFunction(double leftX, double rightX, int pointsCount) {
         if (leftX >= rightX) {
@@ -92,21 +97,22 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
         double newX = point.getX();
         
         if (index == 0) {
-            if (newX >= points[1].getX()) {
+            if (newX >= points[1].getX() && !doubleEquals(newX, points[1].getX())) {
                 throw new InappropriateFunctionPointException(
                     "Новая координата x=" + newX + " должна быть меньше " + points[1].getX()
                 );
             }
         }
         else if (index == pointsCount - 1) {
-            if (newX <= points[pointsCount - 2].getX()) {
+            if (newX <= points[pointsCount - 2].getX() && !doubleEquals(newX, points[pointsCount - 2].getX())) {
                 throw new InappropriateFunctionPointException(
                     "Новая координата x=" + newX + " должна быть больше " + points[pointsCount - 2].getX()
                 );
             }
         }
         else {
-            if (newX <= points[index - 1].getX() || newX >= points[index + 1].getX()) {
+            if ((newX <= points[index - 1].getX() && !doubleEquals(newX, points[index - 1].getX())) || 
+                (newX >= points[index + 1].getX() && !doubleEquals(newX, points[index + 1].getX()))) {
                 throw new InappropriateFunctionPointException(
                     "Новая координата x=" + newX + " должна быть в интервале (" + 
                     points[index - 1].getX() + ", " + points[index + 1].getX() + ")"
@@ -195,7 +201,7 @@ public class ArrayTabulatedFunction implements TabulatedFunction {
 
     public void addPoint(FunctionPoint point) throws InappropriateFunctionPointException {
         for (int i = 0; i < pointsCount; i++) {
-            if (point.getX() == points[i].getX()) {
+            if (doubleEquals(point.getX(), points[i].getX())) {
                 throw new InappropriateFunctionPointException(
                     "Точка с x=" + point.getX() + " уже существует"
                 );
